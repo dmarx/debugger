@@ -19,6 +19,7 @@ from debugger.exceptions import NonStandardDebugHelperName
 #)
 
 class DebugHelper(object):
+
     def __init__(self, parent_logger_name='DebugHelper'):
         self.scope_calls = Counter()
         #self.logger = logging.getLogger(parent_logger_name)
@@ -31,9 +32,11 @@ class DebugHelper(object):
         if not init_name:
             raise NonStandardDebugHelperName
         self._init_name = init_name[0].strip()
+
     def _msg(self, msg_str):
         print(colorize("[{}] {}".format(timestamp(), msg_str)))
         #self.logger.info(msg)
+
     def msg(self, *args, **kwargs):
         """Workhorse"""
         scope = self._calling_scope()
@@ -54,20 +57,22 @@ class DebugHelper(object):
                 msg_str += '\n'
             #self.logger.info(msg_str)
             self._msg(msg_str)
-        #print()
+
     def _calling_context(self, i):
         context = inspect.stack()[i].code_context[0].strip()
         return remove_comments(context)
+
     def _calling_scope(self):
         scope = self._calling_context(4)
         if scope == 'exec(code_obj, self.user_global_ns, self.user_ns)':
             scope = '__main__'
         return scope
+
     def _msg_argnames(self):
         src_call = self._calling_context(4)
         call_pat = '{}.msg('.format(self._init_name)
         _, args1 = src_call.split(call_pat)
-        args2 = args1.strip()[:-1] # assumes no comments on line
+        args2 = args1.strip()[:-1]
         args = args2.split(',')
         argnames = []
         for a in args:
@@ -77,6 +82,7 @@ class DebugHelper(object):
                 elif '=' not in a:
                     argnames.append(a)
         return argnames
+
     def _make_argstr(self, args):
         argnames = self._msg_argnames()
         argstrs = []
@@ -87,26 +93,3 @@ class DebugHelper(object):
                 argstrs.append('...{}'.format(arg))
         argstrs[0] = '... ' + argstrs[0][3:]
         return argstrs
-
-if __name__ == '__main__':
-
-    dbgr = DebugHelper()
-
-    class TestClass(object):
-        def __init__(self, arg):
-            dbgr.msg()
-            dbgr.msg('top')
-            dbgr.msg(arg)
-            b = self.msg(arg)
-            dbgr.msg(b)
-            self.msg(arg+'bar')
-            dbgr.msg()
-        def msg(self, foo):
-            dbgr.msg()
-            dbgr.msg(foo)
-            b = '~~{}~~'.format(foo)
-            dbgr.msg(b)
-            print(b)
-            return b
-
-    TestClass('foo')
