@@ -10,9 +10,8 @@ HERE = path.abspath(path.dirname(__file__))
 #with open(path.join(HERE, 'README.rst'), encoding='utf-8') as fp:
 #    README = fp.read()
 
-#with open(path.join(HERE, PACKAGE_NAME, '__init__.py'),
-#          encoding='utf-8') as fp:
-    #VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
+with open(path.join(HERE, PACKAGE_NAME, '__init__.py'), encoding='utf-8') as fp:
+    VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
 
 setup(name=PACKAGE_NAME,
       packages=[PACKAGE_NAME],
@@ -21,10 +20,10 @@ setup(name=PACKAGE_NAME,
       description='Slightly more sophisticated debugging tool than print()',
       author='David Marx',
       author_email='david.marx84@gmail.com',
-      #url='',
+      url='https://gitlab.com/dmarx/debugger',
       license='Simplified BSD License',
-      #install_requires=['requests'],
-      #keywords='reddit api wrapper pushshift',
+      install_requires=['pygments'],
+      keywords='debug debugger debugging print bug bugs log logging interactive',
       python_requires='>=3',
       classifiers=[
           'Development Status :: 3 - Alpha',
@@ -40,5 +39,7 @@ setup(name=PACKAGE_NAME,
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3 :: Only',
           'Programming Language :: Python :: Implementation :: CPython',
-          'Topic :: Utilities']
+          'Topic :: Software Development :: Libraries',
+          'Topic :: Utilities'
+          ]
       )
