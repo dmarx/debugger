@@ -1,16 +1,11 @@
-# To do:
-
-
 import inspect
 #import logging #Do I really wanna use logging for this? Logging is actually turning into sort of a PITA
 from collections import Counter
-import datetime as dt
 import re
 import warnings
-import pprint
 import sys
 
-from debugger.utils import remove_comments
+from debugger.utils import remove_comments, timestamp, pformatml, colorize
 from debugger.exceptions import NonStandardDebugHelperName
 
 # Again... do I really want to use logging here?
@@ -36,22 +31,8 @@ class DebugHelper(object):
         if not init_name:
             raise NonStandardDebugHelperName
         self._init_name = init_name[0].strip()
-    def _pformat(self, v):
-        """pretty print formatting for multi-line outputs"""
-        v = pprint.pformat(v)
-        if '\n' in v:
-            v = '\n' + v
-        return v
-    @staticmethod
-    def _ts():
-        return str(dt.datetime.now())
     def _msg(self, msg_str):
-        ts = self._ts()
-        #bgnd = "\u001b[45m"
-        code = 223 # 224 is the same color jupyter uses for stderr.
-        bgnd = u"\u001b[48;5;" + str(code) + "m "
-        reset = "\u001b[0m"
-        print("{}[{}] {} {}".format(bgnd, ts, msg_str, reset))
+        print(colorize("[{}] {}".format(timestamp(), msg_str)))
         #self.logger.info(msg)
     def msg(self, *args, **kwargs):
         """Workhorse"""
@@ -67,7 +48,7 @@ class DebugHelper(object):
             parts.extend(self._make_argstr(args))
         if kwargs:
             for k,v in kwargs.items():
-                parts.append('... {}: {}'.format(k, self._pformat(v)))
+                parts.append('... {}: {}'.format(k, pformatml(v)))
         for i, msg_str in enumerate(parts):
             if i == (len(parts)-1):
                 msg_str += '\n'
@@ -101,7 +82,7 @@ class DebugHelper(object):
         argstrs = []
         for argname, arg in zip(argnames, args):
             if argname:
-                argstrs.append('...{}: {}'.format(argname, self._pformat(arg)))
+                argstrs.append('...{}: {}'.format(argname, pformatml(arg)))
             else:
                 argstrs.append('...{}'.format(arg))
         argstrs[0] = '... ' + argstrs[0][3:]
