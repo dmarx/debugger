@@ -10,6 +10,9 @@ import warnings
 import pprint
 import sys
 
+from debugger.utils import remove_comments
+from debugger.exceptions import NonStandardDebugHelperName
+
 # Again... do I really want to use logging here?
 # It's a simple way to get the timestamp and I like that the messages show as colored (in jupyter),
 # but otherwise it's sort of a pain. Does all sorts of weird shit with white space.
@@ -27,7 +30,12 @@ class DebugHelper(object):
         #self.logger.setLevel(logging.INFO)
 
         init_call = self._calling_context(2)
-        self._init_name = re.findall('(\w+)\s?=\s?DebugHelper\\(', init_call)[0].strip()
+        init_name = re.findall('(\w+)\s?=\s?DebugHelper\\(', init_call)
+        if not init_name:
+            init_name = re.findall('(\w+)\s?=\s?debugger.DebugHelper\\(', init_call)
+        if not init_name:
+            raise NonStandardDebugHelperName
+        self._init_name = init_name[0].strip()
     def _pformat(self, v):
         """pretty print formatting for multi-line outputs"""
         v = pprint.pformat(v)
@@ -68,10 +76,7 @@ class DebugHelper(object):
         #print()
     def _calling_context(self, i):
         context = inspect.stack()[i].code_context[0].strip()
-        # Handle comments
-        if '#' in context:
-            context, *_ = context.split('#')
-        return context
+        return remove_comments(context)
     def _calling_scope(self):
         scope = self._calling_context(4)
         if scope == 'exec(code_obj, self.user_global_ns, self.user_ns)':
